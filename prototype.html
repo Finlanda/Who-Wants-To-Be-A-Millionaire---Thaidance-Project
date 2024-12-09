@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Wants to Be a Millionaire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: #222;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 20px;
+            padding: 20px;
+            border: 2px solid #444;
+            border-radius: 10px;
+            background-color: #111;
+        }
+        .question {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .answer {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #444;
+        }
+        .answer:hover {
+            background-color: #555;
+        }
+        .prize-ladder {
+            margin-top: 20px;
+        }
+        .prize-step {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        .active {
+            color: yellow;
+        }
+        .correct {
+            background-color: green;
+        }
+        .incorrect {
+            background-color: red;
+        }
+        #music-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #music-toggle:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>Who Wants to Be a Millionaire</header>
+    <div class="game-container">
+        <div class="question">Question will appear here.</div>
+        <div class="answers">
+            <div class="answer" data-answer="A">A. Answer 1</div>
+            <div class="answer" data-answer="B">B. Answer 2</div>
+            <div class="answer" data-answer="C">C. Answer 3</div>
+            <div class="answer" data-answer="D">D. Answer 4</div>
+        </div>
+        <div class="prize-ladder">
+            <div class="prize-step">$1,000,000</div>
+            <div class="prize-step">$750,000</div>
+            <div class="prize-step">$500,000</div>
+            <div class="prize-step">$250,000</div>
+            <div class="prize-step">$100,000</div>
+            <div class="prize-step">$50,000</div>
+            <div class="prize-step">$25,000</div>
+            <div class="prize-step">$10,000</div>
+            <div class="prize-step">$5,000</div>
+            <div class="prize-step">$2,000</div>
+            <div class="prize-step">$1,000</div>
+            <div class="prize-step">$500</div>
+            <div class="prize-step">$200</div>
+            <div class="prize-step">$100</div>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="background-music" src="sakkijarven-polkka.mp3" loop></audio>
+    <button id="music-toggle">Mute Music</button>
+
+    <script>
+        const questions = [
+        {
+                question: "การรำของภาคกลางส่วนใหญ่ได้รับอิทธิพลจากศิลปะใด?",
+                answers: {
+                    A: "ศิลปะพื้นบ้าน",
+                    B: "ศิลปะในราชสำนัก",
+                    C: "ศิลปะจากภาคเหนือ",
+                    D: "ศิลปะจากต่างประเทศ"
+                },
+                correct: "B"
+            },
+            {
+                question: "การรำประเภทใดในภาคกลางที่มักแสดงในงานพิธีสำคัญของราชสำนัก?",
+                answers: {
+                    A: "รำวง",
+                    B: "รำฉุยฉาย",
+                    C: "ระบำสุโขทัย",
+                    D: "รำแม่บท"
+                },
+                correct: "D"
+            },
+            {
+                question: "การรำแม่บทมีลักษณะเด่นในเรื่องใด?",
+                answers: {
+                    A: "ท่ารำที่เรียบง่าย",
+                    B: "ท่ารำที่สง่างามและประณีต",
+                    C: "ท่ารำที่มีจังหวะรวดเร็ว",
+                    D: "ท่ารำที่ผสมผสานกับการร้องเพลง"
+                },
+                correct: "B"
+            },
+            {
+                question: "การรำวงของภาคกลางมักแสดงในโอกาสใด?",
+                answers: {
+                    A: "งานพิธีแต่งงาน",
+                    B: "งานเฉลิมฉลองทั่วไป",
+                    C: "งานบวงสรวง",
+                    D: "งานศพ"
+                },
+                correct: "B"
+            },
+            {
+                question: "การแสดงละครรำที่มีชื่อเสียงในภาคกลางคือเรื่องใด?",
+                answers: {
+                    A: "ละครนอก",
+                    B: "ละครชาตรี",
+                    C: "ละครใน",
+                    D: "ละครพันทาง"
+                },
+                correct: "C"
+            },
+            {
+                question: "รำฉุยฉายมักถูกนำเสนอในส่วนใดของการแสดงโขน?",
+                answers: {
+                    A: "ตอนเปิดเรื่อง",
+                    B: "ตอนอำลา",
+                    C: "ตอนเข้าฉากตัวเอก",
+                    D: "ตอนปิดเรื่อง"
+                },
+                correct: "A"
+            },
+            {
+                question: "เครื่องแต่งกายของผู้รำภาคกลางมักมีลักษณะอย่างไร?",
+                answers: {
+                    A: "เรียบง่ายและสะท้อนวิถีชีวิตชาวบ้าน",
+                    B: "หรูหรา ประณีต และมีสีสันสดใส",
+                    C: "ใช้ผ้าสีดำล้วน",
+                    D: "ผสมผสานระหว่างชุดพื้นเมืองกับชุดสมัยใหม่"
+                },
+                correct: "B"
+            },
+            {
+                question: "ข้อใดเป็นการระบำรำฟ้อนของภาคกลาง?",
+                answers: {
+                    A: "ฟ้อนผี",
+                    B: "เถิดเทิง",
+                    C: "เซิ้ง",
+                    D: "กะโน้บติงต็อง"
+                },
+                correct: "B"
+            },
+            {
+                question: "เครื่องดนตรีพื้นบ้านที่ใช้ประกอบการรำภาคกลาง?",
+                answers: {
+                    A: "แคน",
+                    B: "กลองแขก",
+                    C: "กลองโนรา",
+                    D: "กลองยาว"
+                },
+                correct: "D"
+            },
+            {
+                question: "เต้นกำรำเคียวเป็นเพลงรำพื้นเมืองของจังหวัดใด?",
+                answers: {
+                    A: "อยุธยา",
+                    B: "นครศรีธรรมราช",
+                    C: "นครสวรรค์",
+                    D: "สุโขทัย"
+                },
+                correct: "C"
+            },
+            {
+                question: "เพลงชาวไทยมีท่ารำอะไรกำหนดใว้?",
+                answers: {
+                    A: "ท่าซักแป้งผัดหน้า",
+                    B: "ท่าแขกเต้าเข้ารัง",
+                    C: "ท่าสอดสร้อยมาลา",
+                    D: "ท่าผาลาเพียงไหล่"
+                },
+                correct: "A"
+            },
+            {
+                question: "การรำวง วิวัฒนาการมาจากอะไร?",
+                answers: {
+                    A: "รำโทน",
+                    B: "รำกลองยาว",
+                    C: "ลำตัด",
+                    D: "ฟ้อนเทียน"
+                },
+                correct: "A"
+            },
+            {
+                question: "เต้นกำรำเคียว นิยมเล่นในฤดูกาลใด?",
+                answers: {
+                    A: "ฤดูร้อน",
+                    B: "ฤดูปลูกข้าว",
+                    C: "ฤดูฝน",
+                    D: "ฤดูเกี่ยวข้าว"
+                },
+                correct: "D"
+            },
+            {
+                question: "เพลงลอยกระทงเป็นการรำแบบใด?",
+                answers: {
+                    A: "รำกลองยาว",
+                    B: "รำวง",
+                    C: "รำเคียว",
+                    D: "รำโทน"
+                },
+                correct: "B"
+            },
+            {
+                question: "การรำของภาคกลางส่วนใหญ่จะเกี่ยวข้องกับอาชีพใด?",
+                answers: {
+                    A: "พ่อค้า",
+                    B: "ชาวประมง",
+                    C: "เกษตรกร",
+                    D: "พระสงฆ์"
+                },
+                correct: "C"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+
+        const questionElement = document.querySelector('.question');
+        const answerElements = document.querySelectorAll('.answer');
+        const prizeSteps = document.querySelectorAll('.prize-step');
+
+        function loadQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            answerElements.forEach(answerEl => {
+                const answerKey = answerEl.getAttribute('data-answer');
+                answerEl.textContent = `${answerKey}. ${currentQuestion.answers[answerKey]}`;
+                answerEl.classList.remove('correct', 'incorrect');
+                answerEl.onclick = () => checkAnswer(answerKey);
+            });
+            updatePrizeLadder();
+        }
+
+        function checkAnswer(selected) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selected === currentQuestion.correct;
+            const selectedAnswer = document.querySelector(`.answer[data-answer="${selected}"]`);
+            selectedAnswer.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+            if (isCorrect) {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    setTimeout(loadQuestion, 1000);
+                } else {
+                    alert('Congratulations! You won $1,000,000!');
+                }
+            } else {
+                alert('Wrong answer. Game over!');
+                location.reload();
+            }
+        }
+
+        function updatePrizeLadder() {
+            prizeSteps.forEach((step, index) => {
+                step.classList.toggle('active', index === questions.length - currentQuestionIndex - 1);
+            });
+        }
+
+        // Music Controls
+        const backgroundMusic = document.getElementById('background-music');
+        const musicToggleButton = document.getElementById('music-toggle');
+        let isMusicPlaying = true;
+
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play();
+
+        musicToggleButton.addEventListener('click', () => {
+            if (isMusicPlaying) {
+                backgroundMusic.pause();
+                musicToggleButton.textContent = 'Play Music';
+            } else {
+                backgroundMusic.play();
+                musicToggleButton.textContent = 'Mute Music';
+            }
+            isMusicPlaying = !isMusicPlaying;
+        });
+
+        loadQuestion();
+    </script>
+</body>
+</html>
